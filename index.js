@@ -3,15 +3,15 @@ const fs = require('fs');
 const qrcode = require('qrcode-terminal');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 
-
+// Path where the session data will be stored
 const SESSION_FILE_PATH = './session.json';
-
+// Path to store users who have received the promotional and follow-up messages
 const PROMO_SENT_FILE = './promo-sent.json';
 
-
-const country_code = process.env.COUNTRY_CODE ;
-const number = process.env.NUMBER ;
-const msg = process.env.MSG ;
+// Environment variables with fallback values
+const country_code = process.env.COUNTRY_CODE || '977';
+const number = process.env.NUMBER || '9866804473';
+const msg = process.env.MSG || 'this is a test';
 
 // Promotional reply for the first message
 const PROMO_REPLY = 'Enjoy 10% OFF on your purchase as one of our first 10 buyers! Plus, get an additional 10% OFF when you refer a friend.';
@@ -32,7 +32,7 @@ if (fs.existsSync(PROMO_SENT_FILE)) {
     }
 }
 
-
+// Function to save the promoSentUsers and followupSentUsers to a file
 function savePromoSentUsers() {
     try {
         fs.writeFileSync(PROMO_SENT_FILE, JSON.stringify({
@@ -173,13 +173,13 @@ client.on('message', async (message) => {
 
     // Check if the user has received the promotional message
     if (!promoSentUsers.has(sender)) {
-        
+        // Send promotional reply for the first message
         await message.reply(PROMO_REPLY);
         console.log(`[REPLY] Sent promotional info to ${sender}: "${PROMO_REPLY}"`);
         promoSentUsers.add(sender);
         savePromoSentUsers(); // Save the updated sets to file
     } else {
-        
+        // Send follow-up reply for the second message
         await message.reply(FOLLOWUP_REPLY);
         console.log(`[REPLY] Sent follow-up info to ${sender}: "${FOLLOWUP_REPLY}"`);
         followupSentUsers.add(sender);
@@ -187,7 +187,7 @@ client.on('message', async (message) => {
     }
 });
 
-
+// Handle all messages (including outgoing messages sent by the bot or device)
 client.on('message_create', async (message) => {
     // Log all messages created by the bot or the linked device
     if (message.fromMe) {
